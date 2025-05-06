@@ -1,0 +1,616 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Iceland', monospace;
+}
+
+/* Default: Black Theme */
+:root {
+    --background-color: rgb(12, 12, 12);
+    --text-color: rgb(255, 255, 255);
+    --blurred-box-bg: rgba(50, 50, 50, 0.1);
+    --box-shadow: rgba(25, 25, 25, 0.5);
+    --accent-color: rgb(0, 170, 255);
+    --accent-hover: rgb(0, 136, 204);
+    --divider-color: rgba(255, 255, 255, 0.25);
+    --glitch-container-bg: rgba(0, 0, 0, 0.55);
+    --menu-color: rgba(0, 0, 0, 0);
+    --nav-color: rgb(0, 170, 255);
+    --nav-hover-color: rgb(255, 255, 255);
+}
+
+/* White Theme */
+body.white-theme {
+    --background-color: rgb(255, 255, 255);
+    --text-color: rgb(50, 50, 50);
+    --blurred-box-bg: rgba(255, 255, 255, 0.1);
+    --box-shadow: rgba(0, 0, 0, 0.1);
+    --accent-color: rgb(232, 35, 100);
+    --accent-hover: rgb(176, 0, 58);
+    --divider-color: rgba(0, 0, 0, 0.6);
+    --glitch-container-bg: rgba(0, 0, 0, 0.75);
+    --menu-color: rgba(0, 0, 0, 0);
+    --nav-color: rgb(255, 255, 255);
+    --nav-hover-color: rgb(232, 35, 100);
+}
+
+/* Divider Line */
+.divider {
+    border: none;
+    border-radius: 0px;
+    height: 1px;
+    background: var(--divider-color);
+    opacity: 0.3;
+    margin: 26px 0;
+    transition: background 0.3s ease;
+}
+
+.divider-middle {
+    border: none;
+    margin: 8px 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+body {
+    background: var(--background-color);
+    color: var(--text-color);
+    overflow-x: hidden;
+    position: relative;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.menu-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    margin-top: 1px;
+    background: var(--menu-color);
+    color: transparent; /* Hide the actual text content */
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s; /* Only transition background */
+    z-index: 10;
+    user-select: none; /* Prevent text selection */
+    overflow: hidden; /* Prevent overflow from pseudo-element */
+}
+
+.menu-toggle:hover {
+    background: var(--accent-color);
+}
+
+.menu-toggle::before {
+    content: '⨯'; /* Use the cross symbol */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-top: 1px;
+    transform: translate(-50%, -50%) rotate(-45deg); /* Center and rotate to "plus" shape */
+    color: var(--text-color); /* Use theme's text color */
+    font-family: 'Iceland', monospace; /* Ensure consistent font rendering */
+    font-size: 20px; /* Match button’s font-size */
+    line-height: 1; /* Remove line-height effects */
+    text-align: center; /* Ensure text is centered */
+    transition: transform 0.3s ease, color 0.3s ease; /* Smooth rotation and color */
+    transform-origin: 50% 50%; /* Precise center for rotation */
+}
+
+.menu-toggle.active::before {
+    transform: translate(-50%, -50%) rotate(0deg); /* Remove rotation to show "×" */
+}
+
+.menu-toggle:hover::before {
+    color: var(--background-color); /* Match hover text color */
+}
+
+/* Menu */
+.menu {
+    position: absolute;
+    top: 60px;
+    right: 16px;
+    background: var(--nav-color);
+    backdrop-filter: blur(5px);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    box-shadow: 0 0 10px var(--box-shadow);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+}
+
+.menu.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.menu.hidden {
+    display: none;
+}
+
+/* Menu Items */
+.menu-item {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease; /* Smooth changes */
+    position: relative; /* For text transition effects */
+    overflow: hidden; /* Ensure text transitions stay within bounds */
+}
+
+.menu-item:hover {
+    background: var(--nav-hover-color);
+    color: var(--background-color);
+    /* transform: scale(1.05);  */
+}
+
+/* Active state for audio toggle button when playing */
+.menu-item.audio-playing {
+    background: var(--nav-hover-color);
+    color: var(--background-color);
+    transition: background 0.3s ease, color 0.3s ease; /* Smooth transition for active state */
+}
+
+/* Smooth text transition for audio toggle */
+.menu-item#audio-toggle {
+    display: inline-block; /* Ensure proper sizing for transitions */
+    color: transparent; /* Hide the button's actual text to prevent doubling */
+    user-select: none; /* Prevent text selection */
+}
+
+.menu-item#audio-toggle::before {
+    content: attr(data-text); /* Display "Listen Audio" or current text */
+    position: absolute;
+    top: 8px; /* Adjusted from 8px to 6px to move text up */
+    left: 16px; /* Kept as is for horizontal alignment */
+    color: var(--text-color); /* Default text color */
+    transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease; /* Smooth transitions */
+}
+
+.menu-item#audio-toggle.audio-playing::before {
+    opacity: 0; /* Fade out "Listen Audio" */
+    transform: translateY(-10px); /* Slide up */
+}
+
+.menu-item#audio-toggle::after {
+    content: attr(data-alt-text); /* Display "Stop Audio" */
+    position: absolute;
+    top: 8px; /* Adjusted from 8px to 6px to move text up */
+    left: 16px; /* Kept as is for horizontal alignment */
+    color: var(--background-color); /* Match .audio-playing text color */
+    opacity: 0; /* Start hidden */
+    transform: translateY(10px); /* Start below */
+    transition: opacity 0.2s ease, transform 0.2s ease, color 0.3s ease; /* Smooth transitions */
+}
+
+.menu-item#audio-toggle.audio-playing::after {
+    opacity: 1; /* Fade in "Stop Audio" */
+    transform: translateY(0); /* Slide to normal position */
+}
+
+/* Hover text color for audio toggle */
+.menu-item#audio-toggle:hover::before,
+.menu-item#audio-toggle:hover::after {
+    color: var(--background-color); /* Change text to white on hover (white theme) */
+}
+
+
+/* Content Wrapper for Blur Effect */
+.content-wrapper {
+    transition: filter 0.3s ease;
+}
+
+.content-wrapper.blur {
+    filter: blur(5px);
+}
+
+/* Update .blurred-box to accommodate the menu */
+.blurred-box {
+    max-width: 600px;
+    width: 100%;
+    background: var(--blurred-box-bg);
+    backdrop-filter: blur(5px);
+    padding: 26px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    box-shadow: 0 0 10px var(--box-shadow);
+    position: relative; /* Added to position the menu relative to the box */
+}
+
+/* Code Rain Background */
+#code-rain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* Main Section */
+.section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+    text-align: center;
+    gap: 32px;
+}
+
+/* Update .blurred-box to accommodate the menu */
+.blurred-box {
+    max-width: 600px;
+    width: 100%;
+    background: var(--blurred-box-bg);
+    backdrop-filter: blur(5px);
+    padding: 26px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    box-shadow: 0 0 10px var(--box-shadow);
+    position: relative; /* Added to position the menu relative to the box */
+}
+
+/* Cursor Styling */
+.cursor {
+    display: inline-block;
+    width: 1.4px;
+    height: 19.2px; /* Match the font-size of .typing */
+    background: var(--divider-color); /* Use text color for cursor */
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 0.7s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+/* About Me */
+.about-content {
+    padding: 0px;
+}
+
+/* Headings */
+h2 {
+    font-size: 40px;
+    margin-bottom: 16px;
+    color: var(--text-color);
+}
+
+/* What I Know and What I Do */
+.info-block {
+    padding: 0px;
+}
+
+/* Typing Effect */
+.typing {
+    color: var(--accent-color);
+    font-weight: bold;
+    font-size: 19.2px;
+}
+
+/* Contact Information */
+.contact-info {
+    padding: 0px;
+}
+
+.contact-info a {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.contact-info a:hover {
+    color: var(--accent-hover);
+}
+
+.telegram-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.telegram-button:hover .telegram-icon {
+    transform: scale(1.2);
+}
+
+/* Glitch Effect Container */
+.glitch-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--glitch-container-bg);
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.glitch-container.show {
+    opacity: 1;
+}
+
+.glitch-container.hidden {
+    display: none;
+}
+
+/* Glitch Noise Canvas */
+.glitch-noise {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.3;
+    z-index: 1;
+}
+
+/* Glitch Scanlines */
+.glitch-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 2px,
+        rgb(0, 0, 0) 2px,
+        rgba(0, 0, 0) 4px
+    );
+    animation: scanlines 10s linear infinite;
+    z-index: 2;
+}
+
+@keyframes scanlines {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 100px;
+    }
+}
+
+/* Glitch Text */
+.glitch-text {
+    position: relative;
+    font-size: 36px;
+    font-weight: bold;
+    color: transparent; /* Base text is invisible */
+    z-index: 3;
+    text-align: center;
+    max-width: 80%;
+    line-height: 1.2;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    color: var(--accent-color); /* Use theme's accent color */
+}
+
+.glitch-text::before {
+    animation: glitch-before 1.2s infinite steps(1, start), flicker 0.5s infinite steps(1, start);
+    left: -3px;
+    animation-delay: 0.05s;
+}
+
+.glitch-text::after {
+    animation: glitch-after 1.4s infinite steps(1, start), flicker 0.5s infinite steps(1, start);
+    left: 3px;
+    animation-delay: 0.1s;
+}
+
+@keyframes glitch-before {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); /* Upper */
+        transform: translate(-7px, 2px); /* Bias left */
+    }
+    15% {
+        clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(5px, -3px); /* Bias right */
+    }
+    30% {
+        clip-path: polygon(0 33%, 100% 33%, 100% 66%, 0 66%); /* Middle */
+        transform: translate(-4px, 4px);
+    }
+    35% {
+        clip-path: polygon(0 0, 100% 0, 100% 25%, 0 25%); /* Upper */
+        transform: translate(-6px, -1px); /* Bias left */
+    }
+    45% {
+        clip-path: polygon(0 50%, 100% 50%, 100% 75%, 0 75%); /* Middle */
+        transform: translate(3px, 5px);
+    }
+    60% {
+        clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(7px, -2px); /* Bias right */
+    }
+    70% {
+        clip-path: polygon(0 0, 100% 0, 100% 20%, 0 20%); /* Upper */
+        transform: translate(-5px, 3px); /* Bias left */
+    }
+    80% {
+        clip-path: polygon(0 25%, 100% 25%, 100% 50%, 0 50%); /* Middle */
+        transform: translate(2px, -4px);
+    }
+    90% {
+        clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(6px, 1px); /* Bias right */
+    }
+    97% {
+        clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); /* Upper */
+        transform: translate(-8px, -2px); /* Bias left */
+    }
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); /* Upper */
+        transform: translate(-7px, 2px); /* Bias left */
+    }
+}
+
+@keyframes glitch-after {
+    0% {
+        clip-path: polygon(0 33%, 100% 33%, 100% 66%, 0 66%); /* Middle */
+        transform: translate(4px, -3px);
+    }
+    12% {
+        clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%); /* Upper */
+        transform: translate(-6px, 2px); /* Bias left */
+    }
+    25% {
+        clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(8px, -1px); /* Bias right */
+    }
+    30% {
+        clip-path: polygon(0 25%, 100% 25%, 100% 50%, 0 50%); /* Middle */
+        transform: translate(-3px, 5px);
+    }
+    40% {
+        clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(7px, -2px); /* Bias right */
+    }
+    50% {
+        clip-path: polygon(0 0, 100% 0, 100% 20%, 0 20%); /* Upper */
+        transform: translate(-5px, 3px); /* Bias left */
+    }
+    60% {
+        clip-path: polygon(0 50%, 100% 50%, 100% 80%, 0 80%); /* Middle */
+        transform: translate(2px, -4px);
+    }
+    70% {
+        clip-path: polygon(0 0, 100% 0, 100% 25%, 0 25%); /* Upper */
+        transform: translate(-7px, 1px); /* Bias left */
+    }
+    80% {
+        clip-path: polygon(0 66%, 100% 66%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(6px, -3px); /* Bias right */
+    }
+    90% {
+        clip-path: polygon(0 33%, 100% 33%, 100% 66%, 0 66%); /* Middle */
+        transform: translate(-4px, 4px);
+    }
+    97% {
+        clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%); /* Bottom */
+        transform: translate(8px, -1px); /* Bias right */
+    }
+    100% {
+        clip-path: polygon(0 33%, 100% 33%, 100% 66%, 0 66%); /* Middle */
+        transform: translate(4px, -3px);
+    }
+}
+
+@keyframes flicker {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .menu-toggle {
+        width: 32px;
+        height: 32px;
+        top: 12px;
+        right: 12px;
+        border-radius: 12px;
+    }
+
+    .menu-toggle::before {
+        font-size: 16px; /* Match button’s font-size */
+    }
+
+    .menu {
+        top: 52px;
+        right: 12px;
+        padding: 6px;
+    }
+
+    .menu-item {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+
+    .menu-item#audio-toggle::before {
+        top: 6px; /* Adjusted from 8px to 6px to move text up */
+        left: 12px;
+    }
+
+    .menu-item#audio-toggle::after {
+        top: 6px; /* Adjusted from 8px to 6px to move text up */
+        left: 12px;
+    }
+
+    h2 {
+        font-size: 32px;
+    }
+
+    .section {
+        padding: 16px;
+    }
+
+    .blurred-box {
+        padding-top: 46px;
+        padding-bottom: 46px;
+    }
+
+    .button-container {
+        top: 10px;
+        gap: 10px;
+    }
+
+    .theme-toggle {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+    .glitch-text {
+        font-size: 20px; /* Reduced from 24px for smaller screens */
+        max-width: 95%; /* Increased from 80% to allow more text fitting */
+        line-height: 1.4; /* Improved readability */
+        white-space: normal; /* Ensure text wraps naturally */
+    }
+}
