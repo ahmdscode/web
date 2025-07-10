@@ -73,7 +73,7 @@ body {
     z-index: -1;
     pointer-events: none;
     overflow: visible;
-    padding-bottom: 8px;
+    padding-bottom: 5px;
 }
 
 .background-text-line {
