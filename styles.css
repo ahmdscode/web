@@ -73,7 +73,7 @@ body {
     z-index: -1;
     pointer-events: none;
     overflow: visible;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 .background-text-line {
@@ -294,9 +294,9 @@ body:not(.resume-mode) #main.section {
     position: relative;
 }
 
-.about-content h2 {
+/* .about-content h2 {
     text-align: center;
-}
+} */
 
 .about-content div {
     margin-top: 10px;
